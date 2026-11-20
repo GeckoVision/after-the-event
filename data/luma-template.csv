@@ -1,0 +1,4 @@
+name,email,approval_status,registered_at,checked_in_at,solana_address,utm_source
+Example Guest One,guest.one@example.com,approved,2026-10-12T14:03:00Z,2026-10-19T12:41:00Z,EXAMPLE_WALLET_ADDRESS_1,partner-a
+Example Guest Two,guest.two@example.com,approved,2026-10-13T09:20:00Z,2026-10-20T13:05:00Z,EXAMPLE_WALLET_ADDRESS_2,partner-b
+Example Guest Three,guest.three@example.com,approved,2026-10-15T18:47:00Z,,EXAMPLE_WALLET_ADDRESS_3,newsletter

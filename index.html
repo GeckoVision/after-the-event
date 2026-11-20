@@ -1,0 +1,239 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>After the Event</title>
+<meta name="description" content="Did the builders who checked in at IslandDAO v5 keep using stablecoins afterwards? A guest list joined to cleaned on-chain activity, counts only.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=IBM+Plex+Mono:wght@400;500&family=Source+Sans+3:wght@400;600&display=swap">
+<style>
+/* Layout: one answer first, then the split, the method, and the file a host needs. */
+:root {
+  --bg: #f1f5f2; --panel: #ffffff; --ink: #10302c; --muted: #52706b; --line: #cddcd6;
+  --sea: #0b6f5e; --sea-soft: #cfe8df; --sand: #c98a2b; --sand-soft: #f5e6cc; --new: #e0a13a;
+  --display: "Bricolage Grotesque", "Trebuchet MS", sans-serif;
+  --body: "Source Sans 3", "Segoe UI", sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, Menlo, monospace;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root { --bg: #0d201e; --panel: #13302c; --ink: #e5f1ee; --muted: #9dbab4; --line: #2a4843;
+    --sea: #5fd0b8; --sea-soft: #1d4741; --sand: #f0b55c; --sand-soft: #4a3518; --new: #f0b55c; color-scheme: dark; }
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--ink); font: 400 17px/1.55 var(--body); }
+main { max-width: 1060px; margin: 0 auto; display: grid; gap: 64px;
+  padding-block: 48px 72px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+h1, h2, h3 { font-family: var(--display); margin: 0; text-wrap: balance; letter-spacing: -0.01em; }
+h1 { font-size: clamp(2.4rem, 7vw, 4.6rem); line-height: 1; font-weight: 800; }
+h2 { font-size: clamp(1.5rem, 3.4vw, 2.1rem); line-height: 1.1; font-weight: 800; }
+h3 { font-size: 1.15rem; font-weight: 600; }
+p { margin: 0; }
+a { color: var(--sea); }
+section, header { display: grid; gap: 18px; min-width: 0; }
+.eyebrow { font: 500 0.78rem/1.2 var(--mono); text-transform: uppercase; letter-spacing: 0.1em; color: var(--sea); }
+.lede { font-size: 1.22rem; max-width: 60ch; color: var(--muted); }
+.note { color: var(--muted); max-width: 66ch; }
+.src { font: 400 0.76rem/1.45 var(--mono); color: var(--muted); }
+.figures { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 20px; border-top: 2px solid var(--ink); padding-top: 18px; }
+.figures div { display: grid; gap: 2px; }
+.figures b { font: 500 2.3rem/1.05 var(--mono); color: var(--sea); font-variant-numeric: tabular-nums; }
+.figures span { color: var(--muted); font-size: 0.95rem; }
+.comeback { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 32px; align-items: center; }
+.big { font: 800 clamp(3.4rem, 10vw, 6rem)/0.9 var(--display); color: var(--sand); }
+.compare { display: grid; gap: 10px; }
+.cbar { display: grid; grid-template-columns: 150px minmax(0, 1fr) 54px; gap: 10px; align-items: center; font-size: 0.95rem; }
+.cbar .t { height: 18px; background: var(--sea-soft); position: relative; }
+.cbar .t i { position: absolute; inset: 0 auto 0 0; background: var(--sea); }
+.cbar .t i.s { background: var(--sand); }
+.cbar b { font: 500 0.95rem var(--mono); text-align: right; }
+.chart { overflow-x: auto; }
+.chart svg { display: block; min-width: 640px; width: 100%; height: auto; }
+.legend { display: flex; gap: 18px; flex-wrap: wrap; font-size: 0.9rem; color: var(--muted); }
+.legend i { display: inline-block; width: 12px; height: 12px; margin-right: 6px; vertical-align: -1px; }
+.ledger { display: grid; gap: 0; border-top: 1px solid var(--line); }
+.proj { display: grid; grid-template-columns: 220px minmax(0, 1fr); gap: 16px; padding: 18px 0; border-bottom: 1px solid var(--line); }
+.proj > * { min-width: 0; }
+.logo { width: 36px; height: 36px; object-fit: contain; background: #fff; border-radius: 8px; border: 1px solid var(--line); padding: 3px; box-sizing: border-box; flex: none; }
+.phead { display: flex; gap: 10px; align-items: center; margin-bottom: 4px; }
+.usedby { display: flex; gap: 18px; align-items: flex-start; }
+.usedby .logo { width: 64px; height: 64px; border-radius: 12px; padding: 6px; }
+.usedby > div { min-width: 0; display: grid; gap: 8px; }
+.proj .dom { font: 400 0.8rem var(--mono); color: var(--muted); overflow-wrap: anywhere; }
+.items { display: grid; gap: 12px; }
+.item { display: grid; gap: 4px; }
+.meta { display: flex; flex-wrap: wrap; gap: 6px 10px; align-items: center; font: 400 0.78rem var(--mono); color: var(--muted); }
+.chip { padding: 2px 7px; border-radius: 3px; background: var(--sea-soft); color: var(--sea); font-weight: 500; }
+.chip.k { background: var(--sand-soft); color: var(--sand); }
+.claim { overflow-wrap: anywhere; }
+.flow { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; }
+.flow div { background: var(--panel); border: 1px solid var(--line); padding: 12px; display: grid; gap: 4px; font-size: 0.93rem; }
+.flow b { font-family: var(--display); font-size: 1rem; }
+ul.rules { margin: 0; padding-left: 18px; display: grid; gap: 6px; max-width: 72ch; }
+.cta { background: var(--panel); border: 1px solid var(--line); padding: 18px; display: grid; gap: 8px; }
+footer { color: var(--muted); font-size: 0.9rem; display: grid; gap: 6px; max-width: 72ch; }
+@media (max-width: 720px) {
+  .comeback { grid-template-columns: 1fr; }
+  .proj { grid-template-columns: 1fr; gap: 8px; }
+  .cbar { grid-template-columns: 110px minmax(0, 1fr) 48px; }
+}
+@media (prefers-reduced-motion: no-preference) { .cbar .t i { transition: width .6s ease; } }
+
+.cbar.w { grid-template-columns: 190px minmax(0, 1fr) 60px; }
+.pair { display: grid; gap: 22px; }
+.pair h3 { margin-bottom: 8px; }
+.tbl { overflow-x: auto; }
+table { border-collapse: collapse; width: 100%; min-width: 520px; font-size: 0.95rem; }
+th, td { text-align: left; padding: 9px 10px; border-bottom: 1px solid var(--line); }
+th { font: 500 0.76rem/1.3 var(--mono); text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); }
+td.n { font-family: var(--mono); font-variant-numeric: tabular-nums; }
+pre { margin: 0; background: var(--panel); border: 1px solid var(--line); padding: 14px; overflow-x: auto; font: 400 0.82rem/1.5 var(--mono); }
+@media (max-width: 720px) { .cbar.w { grid-template-columns: 120px minmax(0, 1fr) 52px; } }
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <span class="eyebrow">IslandDAO v5 · Florianópolis · guest list joined to on-chain activity</span>
+    <h1>After the event</h1>
+    <p class="lede">An event ends and the guest list goes quiet. This page asks one question of IslandDAO v5: did the builders who checked in keep using stablecoins after their first day?</p>
+    <div class="figures" id="figures"></div>
+    <p class="src" id="asof"></p>
+  </header>
+
+  <section>
+    <span class="eyebrow">The answer</span>
+    <h2 id="answer-title">Before and after the first check-in</h2>
+    <div class="comeback">
+      <div style="display:grid;gap:10px">
+        <div class="big" id="big"></div>
+        <p id="big-text" class="note"></p>
+      </div>
+      <div class="compare" id="bars"></div>
+    </div>
+    <p class="note" id="moves"></p>
+    <p class="src">A payment is a stablecoin transfer to another wallet. Swaps, DeFi deposits, transfers between a builder's own wallets and dust are removed first. After the first check-in, not because of it.</p>
+  </section>
+
+  <section>
+    <span class="eyebrow">Week by week</span>
+    <h2>Builders with any stablecoin activity, by week</h2>
+    <div class="compare" id="weeks"></div>
+    <p class="src">Weeks are counted from each builder's own first check-in, so week +1 is a different calendar week for each builder.</p>
+  </section>
+
+  <section>
+    <span class="eyebrow">By time at the event</span>
+    <h2>Does staying longer go with paying more?</h2>
+    <div class="tbl"><table id="buckets"></table></div>
+    <p class="src">Share of builders with at least one payment. A dash means the group is too small to show.</p>
+  </section>
+
+  <section>
+    <span class="eyebrow">How it is made</span>
+    <h2>From a guest list to an answer</h2>
+    <div class="flow">
+      <div><b>Guest list</b>One row per guest: a wallet and a check-in time. Here it is IslandDAO's on-chain check-ins, put in the shape of a Luma export.</div>
+      <div><b>Read</b>Gecko reads each wallet's stablecoin history from Solana. This step is free.</div>
+      <div><b>Clean</b>Each transaction is filed as a payment, a swap, a program move, an internal transfer or dust.</div>
+      <div><b>Compare</b>For each guest: the 14 days before the first check-in against the 14 days after.</div>
+      <div><b>Roll up</b>Only counts leave the dataset. Every value keeps its source and read time.</div>
+    </div>
+    <ul class="rules">
+      <li>Counts only. No wallet addresses, no names, no amounts, no group under 5.</li>
+      <li>Numbers count check-in identifiers, one per account, not verified people.</li>
+      <li>Stablecoins on Solana only: USDC, USDT, PYUSD and USDG. Other tokens and other chains are not read.</li>
+      <li>Check-in days are local days in Florianópolis. Activity days are UTC days.</li>
+      <li>The 14 days after include days spent at the event itself.</li>
+      <li>A wallet made for the event has no history before it. That lowers the "before" numbers.</li>
+    </ul>
+    <p class="note" id="left"></p>
+  </section>
+
+  <section>
+    <span class="eyebrow">Your Luma file</span>
+    <h2>What your event needs to get the same answer</h2>
+    <p class="note">Three settings in Luma, switched on before registration opens:</p>
+    <ul class="rules">
+      <li><b>Ask for a Solana wallet.</b> Luma has a wallet field in the registration form, and the guest proves they own the wallet.</li>
+      <li><b>Check guests in.</b> The check-in time is day 0 for each guest.</li>
+      <li><b>Tag your invite links.</b> A tag on each partner's link shows later which partner brought the guests who stayed active.</li>
+    </ul>
+    <pre id="template"></pre>
+    <p class="src"><a href="data/luma-template.csv">data/luma-template.csv</a> · the rows are made up. Field names follow Luma's guest API; a CSV export from Luma can label them differently.</p>
+  </section>
+
+  <section>
+    <div class="cta">
+      <h3>Run it on your event</h3>
+      <p>Hosted an event on Luma with wallets and check-ins? Open an issue with the event name and date. We run the same steps on your guest list, in your own account, and you get this page for your event. Uploading the file yourself in chat is the next step we are building.</p>
+      <p><a href="https://github.com/GeckoVision/after-the-event/issues/new?title=Event%3A%20&amp;body=Event%20name%3A%0ADate%3A%0AGuests%20checked%20in%3A%0AWallet%20field%20on%3F%3A">Send us your event</a></p>
+    </div>
+  </section>
+
+  <footer>
+    <p>Built by <a href="https://geckovision.tech">Gecko</a>. Attendance comes from IslandDAO's on-chain check-in system. The indexer started from <a href="https://github.com/enviodev/envio-islanddao-demo">Envio's open IslandDAO demo</a>. See also <a href="https://geckovision.github.io/shipped-from-the-island/">Shipped from the Island</a>.</p>
+    <p>Data and method: <a href="https://github.com/GeckoVision/after-the-event">github.com/GeckoVision/after-the-event</a></p>
+  </footer>
+</main>
+<script>
+(async function () {
+  const el = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; };
+  const $ = (id) => document.getElementById(id);
+  let site, template = "";
+  try { site = await (await fetch("data/site.json", { cache: "no-store" })).json(); }
+  catch (err) { $("asof").textContent = "The data file did not load. Open data/site.json in the repository."; return; }
+  try { template = await (await fetch("data/luma-template.csv", { cache: "no-store" })).text(); } catch (err) { template = ""; }
+  $("template").textContent = template.trim() || "See data/luma-template.csv in the repository.";
+
+  const all = site.all, n = all.wallets, w = site.window_days, at = site.attendees;
+  const pct = (v) => (v == null || !n ? null : Math.round((v / n) * 100));
+  const show = (v) => (v == null ? "–" : v + "%");
+  const bar = (box, label, value, sand, wide) => {
+    const r = el("div", wide ? "cbar w" : "cbar"); const tr = el("div", "t"); const i = el("i", sand ? "s" : "");
+    i.style.width = (value == null ? 0 : value) + "%"; tr.append(i);
+    r.append(el("span", null, label), tr, el("b", null, show(value))); box.append(r);
+  };
+
+  const figs = [[n, "builders compared"], [show(pct(all.any.after)), `active in the ${w} days after`],
+    [show(pct(all.payment.after)), "made a payment after"], [show(pct(all.swap.after)), "made a swap after"]];
+  figs.forEach(([v, t]) => { const d = el("div"); d.append(el("b", null, String(v)), el("span", null, t)); $("figures").append(d); });
+  const stamp = (s) => (s || "").replace("T", " ").replace("Z", " UTC");
+  $("asof").textContent = `Gecko dataset ${site.dataset} v${site.version}, read ${stamp(site.fetched_at)}. Activity read from ${site.read_window.since} to ${site.read_window.until}. Page built ${stamp(site.built_at)}.`;
+
+  $("big").textContent = show(pct(all.payment.after));
+  $("big-text").textContent = `of ${n} builders made at least one stablecoin payment in the ${w} days after their first check-in. In the ${w} days before, it was ${show(pct(all.payment.before))}.`;
+  const bars = $("bars");
+  [["Payment", all.payment], ["Swap", all.swap], ["Any activity", all.any]].forEach(([t, k]) => {
+    bar(bars, t + ", before", pct(k.before), false); bar(bars, t + ", after", pct(k.after), true);
+  });
+  const p = all.payment;
+  $("moves").textContent = p.started == null
+    ? "The builder-by-builder split (started, kept, stopped) is withheld: one of its groups has fewer than 5 builders."
+    : `Payments, builder by builder: ${p.started} paid after and not before, ${p.kept} paid in both periods, ${p.stopped} paid before and not after.`;
+
+  const NAMES = { "-2": "2 weeks before", "-1": "week before", "+1": "week after", "+2": "2 weeks after" };
+  site.weeks.forEach((k) => bar($("weeks"), NAMES[k.week], pct(k.active), k.week[0] === "+", true));
+
+  const tb = $("buckets"); const hr = el("tr");
+  ["Days at the event", "Builders", "Paid before", "Paid after"].forEach((t) => hr.append(el("th", null, t))); tb.append(hr);
+  site.by_days_present.forEach((b) => {
+    const r = el("tr"); const share = (v) => (b.wallets && v != null ? Math.round((v / b.wallets) * 100) + "%" : "–");
+    r.append(el("td", null, b.label), el("td", "n", b.wallets == null ? "–" : String(b.wallets)),
+      el("td", "n", b.payment ? share(b.payment.before) : "–"), el("td", "n", b.payment ? share(b.payment.after) : "–"));
+    tb.append(r);
+  });
+
+  const lo = at.left_out, parts = [];
+  if (lo.after_window_too_short) parts.push(`${lo.after_window_too_short} checked in too late to have ${w} full days after yet`);
+  if (lo.before_window_too_short) parts.push(`${lo.before_window_too_short} checked in before the read window allowed ${w} full days before`);
+  if (lo.not_fully_read) parts.push(`${lo.not_fully_read} could not be read in full`);
+  if (lo.no_check_in_date) parts.push(`${lo.no_check_in_date} had no check-in date`);
+  $("left").textContent = `${at.matching || at.in_dataset} builders checked in. ${at.in_dataset} were read (the free step reads 150 wallets). ${n} are compared here` + (parts.length ? `; left out: ${parts.join("; ")}.` : ".");
+})();
+</script>
+</body>
+</html>
