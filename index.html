@@ -114,13 +114,12 @@ pre { margin: 0; background: var(--panel); border: 1px solid var(--line); paddin
       </div>
       <div class="compare" id="bars"></div>
     </div>
-    <p class="note" id="moves"></p>
-    <p class="src">A payment is a stablecoin transfer to another wallet. Swaps, DeFi deposits, transfers between a builder's own wallets and dust are removed first. After the first check-in, not because of it.</p>
+    <p class="src">A payment is a stablecoin transfer between a builder's wallet and a wallet outside the guest list. Sent and received are counted apart: a prize or a refund is a payment received. Swaps, DeFi deposits, transfers between two guests and dust are not payments. After the first check-in, not because of it.</p>
   </section>
 
   <section>
     <span class="eyebrow">Week by week</span>
-    <h2>Builders with any stablecoin activity, by week</h2>
+    <h2>Builders with a payment or a swap, by week</h2>
     <div class="compare" id="weeks"></div>
     <p class="src">Weeks are counted from each builder's own first check-in, so week +1 is a different calendar week for each builder.</p>
   </section>
@@ -129,7 +128,7 @@ pre { margin: 0; background: var(--panel); border: 1px solid var(--line); paddin
     <span class="eyebrow">By time at the event</span>
     <h2>Does staying longer go with paying more?</h2>
     <div class="tbl"><table id="buckets"></table></div>
-    <p class="src">Share of builders with at least one payment. A dash means the group is too small to show.</p>
+    <p class="src" id="buckets-note">Share of builders who sent at least one payment. "Under 5" means fewer than 5 builders, zero included.</p>
   </section>
 
   <section>
@@ -138,16 +137,18 @@ pre { margin: 0; background: var(--panel); border: 1px solid var(--line); paddin
     <div class="flow">
       <div><b>Guest list</b>One row per guest: a wallet and a check-in time. Here it is IslandDAO's on-chain check-ins, put in the shape of a Luma export.</div>
       <div><b>Read</b>Gecko reads each wallet's stablecoin history from Solana. This step is free.</div>
-      <div><b>Clean</b>Each transaction is filed as a payment, a swap, a program move, an internal transfer or dust.</div>
+      <div><b>Clean</b>Each transaction is filed as a payment sent or received, a swap, a program move, a transfer between guests or dust.</div>
       <div><b>Compare</b>For each guest: the 14 days before the first check-in against the 14 days after.</div>
       <div><b>Roll up</b>Only counts leave the dataset. Every value keeps its source and read time.</div>
     </div>
     <ul class="rules">
-      <li>Counts only. No wallet addresses, no names, no amounts, no group under 5.</li>
+      <li>Counts only. No wallet addresses, no names, no amounts.</li>
+      <li>Every count is rounded to the nearest 5, totals included. A count under 5 shows as "under 5". Percentages come from the rounded counts.</li>
       <li>Numbers count check-in identifiers, one per account, not verified people.</li>
       <li>Stablecoins on Solana only: USDC, USDT, PYUSD and USDG. Other tokens and other chains are not read.</li>
       <li>Check-in days are local days in Florianópolis. Activity days are UTC days.</li>
-      <li>The 14 days after include days spent at the event itself.</li>
+      <li>The 14 days after include days spent at the event itself. Most builders stayed 4 days or more.</li>
+      <li>There is no comparison group yet. A rise can come from the calendar or from who chose to attend.</li>
       <li>A wallet made for the event has no history before it. That lowers the "before" numbers.</li>
     </ul>
     <p class="note" id="left"></p>
@@ -190,49 +191,50 @@ pre { margin: 0; background: var(--panel); border: 1px solid var(--line); paddin
   $("template").textContent = template.trim() || "See data/luma-template.csv in the repository.";
 
   const all = site.all, n = all.wallets, w = site.window_days, at = site.attendees;
-  const pct = (v) => (v == null || !n ? null : Math.round((v / n) * 100));
-  const show = (v) => (v == null ? "–" : v + "%");
+  const LOW = site.rounding.low, HIGH = site.rounding.high;
+  // Counts arrive rounded to the nearest 5; a small group arrives as a label, never a number.
+  const share = (v, of) => (typeof v === "number" && typeof of === "number" && of ? Math.round((v / of) * 100) : v);
+  const show = (v) => (typeof v === "number" ? v + "%" : v === LOW ? "under 5" : v === HIGH ? "nearly all" : "–");
+  const width = (v) => (typeof v === "number" ? v : v === HIGH ? 97 : v === LOW ? 2 : 0);
+  const about = (v) => (typeof v === "number" ? "about " + v : v === LOW ? "fewer than 5" : "–");
   const bar = (box, label, value, sand, wide) => {
     const r = el("div", wide ? "cbar w" : "cbar"); const tr = el("div", "t"); const i = el("i", sand ? "s" : "");
-    i.style.width = (value == null ? 0 : value) + "%"; tr.append(i);
+    i.style.width = width(value) + "%"; tr.append(i);
     r.append(el("span", null, label), tr, el("b", null, show(value))); box.append(r);
   };
+  const pct = (v) => share(v, n);
 
-  const figs = [[n, "builders compared"], [show(pct(all.any.after)), `active in the ${w} days after`],
-    [show(pct(all.payment.after)), "made a payment after"], [show(pct(all.swap.after)), "made a swap after"]];
+  const figs = [[about(n), "builders compared"], [show(pct(all.sent.after)), `sent a payment in the ${w} days after`],
+    [show(pct(all.received.after)), "received a payment after"], [show(pct(all.swap.after)), "made a swap after"]];
   figs.forEach(([v, t]) => { const d = el("div"); d.append(el("b", null, String(v)), el("span", null, t)); $("figures").append(d); });
   const stamp = (s) => (s || "").replace("T", " ").replace("Z", " UTC");
-  $("asof").textContent = `Gecko dataset ${site.dataset} v${site.version}, read ${stamp(site.fetched_at)}. Activity read from ${site.read_window.since} to ${site.read_window.until}. Page built ${stamp(site.built_at)}.`;
+  $("asof").textContent = `Gecko dataset ${site.dataset} v${site.version}, read ${stamp(site.fetched_at)}. Activity read from ${site.read_window.since} to ${site.read_window.until}. Every count is rounded to the nearest ${site.rounding.base}.`;
 
-  $("big").textContent = show(pct(all.payment.after));
-  $("big-text").textContent = `of ${n} builders made at least one stablecoin payment in the ${w} days after their first check-in. In the ${w} days before, it was ${show(pct(all.payment.before))}.`;
+  $("big").textContent = show(pct(all.sent.after));
+  $("big-text").textContent = `of ${about(n)} builders sent at least one stablecoin payment in the ${w} days after their first check-in. In the ${w} days before, it was ${show(pct(all.sent.before))}. Those ${w} days include days at the event.`;
   const bars = $("bars");
-  [["Payment", all.payment], ["Swap", all.swap], ["Any activity", all.any]].forEach(([t, k]) => {
+  [["Sent a payment", all.sent], ["Received a payment", all.received], ["Swap", all.swap], ["Any of these", all.any]].forEach(([t, k]) => {
     bar(bars, t + ", before", pct(k.before), false); bar(bars, t + ", after", pct(k.after), true);
   });
-  const p = all.payment;
-  $("moves").textContent = p.started == null
-    ? "The builder-by-builder split (started, kept, stopped) is withheld: one of its groups has fewer than 5 builders."
-    : `Payments, builder by builder: ${p.started} paid after and not before, ${p.kept} paid in both periods, ${p.stopped} paid before and not after.`;
 
   const NAMES = { "-2": "2 weeks before", "-1": "week before", "+1": "week after", "+2": "2 weeks after" };
   site.weeks.forEach((k) => bar($("weeks"), NAMES[k.week], pct(k.active), k.week[0] === "+", true));
 
-  const tb = $("buckets"); const hr = el("tr");
-  ["Days at the event", "Builders", "Paid before", "Paid after"].forEach((t) => hr.append(el("th", null, t))); tb.append(hr);
-  site.by_days_present.forEach((b) => {
-    const r = el("tr"); const share = (v) => (b.wallets && v != null ? Math.round((v / b.wallets) * 100) + "%" : "–");
-    r.append(el("td", null, b.label), el("td", "n", b.wallets == null ? "–" : String(b.wallets)),
-      el("td", "n", b.payment ? share(b.payment.before) : "–"), el("td", "n", b.payment ? share(b.payment.after) : "–"));
-    tb.append(r);
-  });
+  const tb = $("buckets");
+  if (!site.by_days_present.length) {
+    $("buckets-note").textContent = `This split is not shown: one of its groups has fewer than ${site.rounding.min_group} builders.`;
+  } else {
+    const hr = el("tr");
+    ["Days at the event", "Builders", "Sent before", "Sent after"].forEach((t) => hr.append(el("th", null, t))); tb.append(hr);
+    site.by_days_present.forEach((b) => {
+      const r = el("tr");
+      r.append(el("td", null, b.label), el("td", "n", about(b.wallets)),
+        el("td", "n", show(share(b.sent.before, b.wallets))), el("td", "n", show(share(b.sent.after, b.wallets))));
+      tb.append(r);
+    });
+  }
 
-  const lo = at.left_out, parts = [];
-  if (lo.after_window_too_short) parts.push(`${lo.after_window_too_short} checked in too late to have ${w} full days after yet`);
-  if (lo.before_window_too_short) parts.push(`${lo.before_window_too_short} checked in before the read window allowed ${w} full days before`);
-  if (lo.not_fully_read) parts.push(`${lo.not_fully_read} could not be read in full`);
-  if (lo.no_check_in_date) parts.push(`${lo.no_check_in_date} had no check-in date`);
-  $("left").textContent = `${at.matching || at.in_dataset} builders checked in. ${at.in_dataset} were read (the free step reads 150 wallets). ${n} are compared here` + (parts.length ? `; left out: ${parts.join("; ")}.` : ".");
+  $("left").textContent = `Builders who checked in: ${about(at.checked_in == null ? at.read : at.checked_in)}. Builders read: ${about(at.read)} (the free step reads 150 wallets, taken in list order). Builders compared here: ${about(n)}. The rest are left out: their check-in was too close to the start or the end of the read window for ${w} full days on each side, or their history could not be read in full.`;
 })();
 </script>
 </body>
