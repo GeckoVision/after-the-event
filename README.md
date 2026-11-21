@@ -16,6 +16,9 @@ after it:
 - builders with any of these, by week;
 - payments sent, by days spent at the event.
 
+A second comparison starts at the last check-in, so it holds no day at the event: the 14 days before the first
+check-in against days 1-14 (and later 15-28) after the last one. A period is shown once at least 20 builders fit it.
+
 A payment is a stablecoin transfer between a builder's wallet and a wallet outside the guest list. Sent and
 received are counted apart, so a prize or a refund is a payment received, not a payment made. Swaps, DeFi
 deposits, transfers between two guests and dust are filed separately and are not payments.

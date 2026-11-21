@@ -120,6 +120,28 @@
    }
   }
  ],
+ "after_last_check_in": {
+  "days_1_14": {
+   "wallets": 80,
+   "sent": {
+    "before": 15,
+    "after": 25
+   },
+   "received": {
+    "before": 10,
+    "after": 15
+   },
+   "swap": {
+    "before": 10,
+    "after": 20
+   },
+   "any": {
+    "before": 20,
+    "after": 30
+   }
+  },
+  "days_15_28": null
+ },
  "weeks": [
   {
    "week": "-2",

@@ -117,6 +117,13 @@ pre { margin: 0; background: var(--panel); border: 1px solid var(--line); paddin
     <p class="src">A payment is a stablecoin transfer between a builder's wallet and a wallet outside the guest list. Sent and received are counted apart: a prize or a refund is a payment received. Swaps, DeFi deposits, transfers between two guests and dust are not payments. After the first check-in, not because of it.</p>
   </section>
 
+  <section id="last-section" hidden>
+    <span class="eyebrow">After the event itself</span>
+    <h2>Before the first check-in and after the last one</h2>
+    <div class="compare" id="last-bars"></div>
+    <p class="src" id="last-note"></p>
+  </section>
+
   <section>
     <span class="eyebrow">Week by week</span>
     <h2>Builders with a payment or a swap, by week</h2>
@@ -216,6 +223,18 @@ pre { margin: 0; background: var(--panel); border: 1px solid var(--line); paddin
   [["Sent a payment", all.sent], ["Received a payment", all.received], ["Swap", all.swap], ["Any of these", all.any]].forEach(([t, k]) => {
     bar(bars, t + ", before", pct(k.before), false); bar(bars, t + ", after", pct(k.after), true);
   });
+
+  const al = site.after_last_check_in || {};
+  [["days_1_14", "days 1-14 after"], ["days_15_28", "days 15-28 after"]].forEach(([key, name]) => {
+    const g = al[key]; if (!g) return;
+    $("last-section").hidden = false;
+    [["Sent a payment", g.sent], ["Any of these", g.any]].forEach(([t, k]) => {
+      bar($("last-bars"), `${t}, before`, share(k.before, g.wallets), false, true);
+      bar($("last-bars"), `${t}, ${name}`, share(k.after, g.wallets), true, true);
+    });
+    $("last-note").textContent += `${name[0].toUpperCase() + name.slice(1)} the last check-in: ${about(g.wallets)} builders had that whole period inside the read window. `;
+  });
+  if (!$("last-section").hidden) $("last-note").textContent += "These periods hold no day at the event. A period is shown only when at least " + site.rounding.min_group + " builders fit it, and early leavers fit first.";
 
   const NAMES = { "-2": "2 weeks before", "-1": "week before", "+1": "week after", "+2": "2 weeks after" };
   site.weeks.forEach((k) => bar($("weeks"), NAMES[k.week], pct(k.active), k.week[0] === "+", true));

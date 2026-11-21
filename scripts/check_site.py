@@ -15,7 +15,7 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
-COUNT_SECTIONS = ("attendees", "all", "by_days_present", "weeks")
+COUNT_SECTIONS = ("attendees", "all", "by_days_present", "weeks", "after_last_check_in")
 LABELS = ("<5", "nearly all")
 ADDRESS = re.compile(r"[1-9A-HJ-NP-Za-km-z]{32,44}")
 

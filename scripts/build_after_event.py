@@ -5,7 +5,7 @@ The export stays private: it has one row per wallet. Only the rounded counts wri
 
 For each wallet, day 0 is its first check-in. The script compares the ``WINDOW`` days before day 0
 with the ``WINDOW`` days after it (day 0 itself is in neither) and counts wallets, never dollars.
-The days after include days spent at the event.
+The days after include days spent at the event, so a second comparison starts at the last check-in.
 
 Disclosure rule, applied to every published count, totals included:
 - a count is rounded to the nearest ``BASE``;
@@ -117,6 +117,32 @@ def summary(group: list[dict]) -> dict:
     return out
 
 
+def after_last(wallets: dict[str, dict], lo: int, hi: int) -> dict | None:
+    """Before the first check-in against days ``lo``..``hi`` after the LAST one, so no event day is counted.
+
+    Only wallets whose own read window holds both periods are in it. Withheld when fewer than ``MIN_GROUP`` fit.
+    """
+    group = []
+    for wallet in wallets.values():
+        first, last = as_date(wallet.get("first_check_in")), as_date(wallet.get("last_check_in"))
+        since, until = as_date(wallet.get("window_start")), as_date(wallet.get("window_end"))
+        status = str(wallet.get("read_status") or "").lower()
+        if None in (first, last, since, until) or status not in ("ok", "complete", "read"):
+            continue
+        if str(wallet.get("truncated")).lower() == "true":
+            continue
+        if first - timedelta(days=WINDOW) < since or last + timedelta(days=hi) > until:
+            continue
+        inside = lambda days, start, end: any(start <= d <= end for d in days)  # noqa: E731
+        group.append(
+            {
+                "before": {k: inside(wallet["days"][k], first - timedelta(days=WINDOW), first - timedelta(days=1)) for k in KINDS},
+                "after": {k: inside(wallet["days"][k], last + timedelta(days=lo), last + timedelta(days=hi)) for k in KINDS},
+            }
+        )
+    return summary(group) if len(group) >= MIN_GROUP else None
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     parser.add_argument("export", type=Path, help="masked dataset export (JSON), kept private")
@@ -177,6 +203,7 @@ def main() -> int:
         },
         "all": summary(cohort),
         "by_days_present": buckets,
+        "after_last_check_in": {"days_1_14": after_last(wallets, 1, WINDOW), "days_15_28": after_last(wallets, WINDOW + 1, 2 * WINDOW)},
         "weeks": weeks,
         "unit": "check-in identifiers (one per account), not verified people",
     }
