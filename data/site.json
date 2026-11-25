@@ -1,11 +1,11 @@
 {
- "dataset": "islanddao-after-event",
+ "dataset": "islanddao-after-event-2",
  "version": 1,
- "fetched_at": "2026-11-20T19:33:03Z",
+ "fetched_at": "2026-11-25T01:25:57Z",
  "window_days": 14,
  "read_window": {
-  "since": "2026-10-05",
-  "until": "2026-11-19"
+  "since": "2026-10-04",
+  "until": "2026-11-25"
  },
  "rounding": {
   "base": 5,
@@ -16,35 +16,35 @@
  "attendees": {
   "checked_in": 155,
   "read": 150,
-  "compared": 135,
-  "left_out": 15
+  "compared": 145,
+  "left_out": "<5"
  },
  "all": {
-  "wallets": 135,
+  "wallets": 145,
   "sent": {
-   "before": 20,
-   "after": 40
+   "before": 25,
+   "after": 50
   },
   "received": {
    "before": 15,
-   "after": 30
+   "after": 35
   },
   "swap": {
-   "before": 15,
-   "after": 40
+   "before": 20,
+   "after": 50
   },
   "any": {
-   "before": 30,
-   "after": 55
+   "before": 35,
+   "after": 60
   }
  },
  "by_days_present": [
   {
    "label": "1 day",
-   "wallets": 25,
+   "wallets": 30,
    "sent": {
     "before": "<5",
-    "after": "<5"
+    "after": 5
    },
    "received": {
     "before": "<5",
@@ -52,11 +52,11 @@
    },
    "swap": {
     "before": "<5",
-    "after": "<5"
+    "after": 5
    },
    "any": {
     "before": "<5",
-    "after": "<5"
+    "after": 5
    }
   },
   {
@@ -64,7 +64,7 @@
    "wallets": 30,
    "sent": {
     "before": 5,
-    "after": 10
+    "after": 5
    },
    "received": {
     "before": "<5",
@@ -76,7 +76,7 @@
    },
    "any": {
     "before": 10,
-    "after": 15
+    "after": 10
    }
   },
   {
@@ -84,11 +84,11 @@
    "wallets": 55,
    "sent": {
     "before": 10,
-    "after": 20
+    "after": 15
    },
    "received": {
-    "before": 10,
-    "after": 15
+    "before": 5,
+    "after": 10
    },
    "swap": {
     "before": 5,
@@ -101,46 +101,64 @@
   },
   {
    "label": "10+ days",
-   "wallets": 25,
+   "wallets": 30,
    "sent": {
-    "before": "<5",
-    "after": 10
+    "before": 10,
+    "after": 20
    },
    "received": {
     "before": "<5",
-    "after": 10
+    "after": 15
    },
    "swap": {
-    "before": "<5",
-    "after": 15
+    "before": 5,
+    "after": 20
    },
    "any": {
-    "before": "<5",
-    "after": 15
+    "before": 10,
+    "after": 25
    }
   }
  ],
  "after_last_check_in": {
   "days_1_14": {
-   "wallets": 80,
+   "wallets": 145,
    "sent": {
+    "before": 25,
+    "after": 40
+   },
+   "received": {
     "before": 15,
     "after": 25
    },
-   "received": {
-    "before": 10,
-    "after": 15
-   },
    "swap": {
-    "before": 10,
-    "after": 20
+    "before": 20,
+    "after": 35
    },
    "any": {
-    "before": 20,
-    "after": 30
+    "before": 35,
+    "after": 50
    }
   },
-  "days_15_28": null
+  "days_15_28": {
+   "wallets": 20,
+   "sent": {
+    "before": 10,
+    "after": 10
+   },
+   "received": {
+    "before": "<5",
+    "after": 5
+   },
+   "swap": {
+    "before": 5,
+    "after": 10
+   },
+   "any": {
+    "before": 10,
+    "after": 10
+   }
+  }
  },
  "weeks": [
   {
@@ -149,15 +167,15 @@
   },
   {
    "week": "-1",
-   "active": 20
+   "active": 25
   },
   {
    "week": "+1",
-   "active": 40
+   "active": 50
   },
   {
    "week": "+2",
-   "active": 40
+   "active": 45
   }
  ],
  "unit": "check-in identifiers (one per account), not verified people"
